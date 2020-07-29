@@ -9,10 +9,10 @@ class SpeechSynth extends Component {
 			msg: {},
 		};
 	}
+
 	componentDidMount() {
 		const msg = new SpeechSynthesisUtterance();
 		const voicesDropdown = document.querySelector('[name="voice"]');
-
 		const options = document.querySelectorAll(
 			'[type="range"], [name="text"]'
 		);
@@ -38,63 +38,42 @@ class SpeechSynth extends Component {
 	setOptions = (e) => {
 		let msg = this.state.msg;
 		const text = document.querySelector("[name='text']");
-
-		msg.text = text.value;
-
 		msg[e.target.name] = e.target.value;
 		this.setState({ msg });
-
-		this.toggle();
 	};
 
 	getVoices = async () => {
 		let voices = [];
 		voices = await window.speechSynthesis.getVoices();
-
-		console.log(voices);
 		if (voices) this.setState({ voices });
-		this.populateList();
 	};
 
 	updateVoice = (e) => {
 		let msg = this.state.msg;
-		msg.voice = this.state.voices.find(
+		msg.voice = [...this.state.voices].find(
 			(voice) => voice.name === e.target.value
 		);
 		this.setState({ msg });
-		console.log({ msg });
 		this.toggle();
 	};
 
 	toggle = () => {
-		let msg = this.state.msg;
 		window.speechSynthesis.cancel();
-		window.speechSynthesis.speak(msg);
+		this.playText();
 	};
 
-	populateList = function () {
-		const voicesDropdown = document.querySelector('[name="voice"]');
-
-		voicesDropdown.innerHTML = this.state.voices
-			.map((voice) => {
-				return `<option value="${voice.name}">${voice.name}</option>`;
-			})
-			.join("");
-	};
-
-	playText = function () {
-		let msg = new SpeechSynthesisUtterance();
-		const text = document.querySelector("[name='text']");
+	playText = () => {
+		let msg = this.state.msg;
+		let text = document.querySelector("[name='text']");
 		msg.text = text.value;
-
-		window.speechSynthesis.speak(msg);
+		this.setState({ msg });
+		window.speechSynthesis.speak(this.state.msg);
 	};
 
-	stopText = function () {
-		let msg = new SpeechSynthesisUtterance();
+	stopText = () => {
+		let msg = this.state.msg;
 		const text = document.querySelector("[name='text']");
-		msg.text = text.value;
-
+		msg.text = text.value;	
 		window.speechSynthesis.cancel(msg);
 	};
 
@@ -106,7 +85,7 @@ class SpeechSynth extends Component {
 				<select name="voice" id="voices">
 					<option value="">Select A Voice</option>
 					{this.state.voices.map((voice) => {
-						return `<option value="${voice.name}">${voice.name}</option>`;
+						return <option value={voice.name}>{voice.name}</option>;
 					})}
 				</select>
 
@@ -123,7 +102,7 @@ class SpeechSynth extends Component {
 				<label for="pitch">Pitch:</label>
 
 				<input name="pitch" type="range" min="0" max="2" step="0.1" />
-				<textarea name="text">Hello! I love JavaScript 👍</textarea>
+				<textarea name="text">Hello! Give me something to say 😊👍</textarea>
 				<button id="stop">Stop!</button>
 				<button id="speak">Speak</button>
 			</div>
